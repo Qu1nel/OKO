@@ -1,0 +1,63 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.sha }}
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version-file: .python-version
+      - run: git merge-base --is-ancestor "$GITHUB_SHA" origin/main
+      - name: Import release verification key
+        env:
+          GNUPGHOME: ${{ runner.temp }}/oko-release-gnupg
+          RELEASE_PUBLIC_KEY: ${{ vars.OKO_RELEASE_PUBLIC_KEY }}
+        run: |
+          test -n "$RELEASE_PUBLIC_KEY"
+          mkdir -m 700 "$GNUPGHOME"
+          printf '%s\n' "$RELEASE_PUBLIC_KEY" | gpg --batch --import
+          printf 'GNUPGHOME=%s\n' "$GNUPGHOME" >> "$GITHUB_ENV"
+      - run: python scripts/release.py --tag "$GITHUB_REF_NAME" --require-tag --notes-file release-notes.md
+      - run: python -m pip install uv==0.13.7
+      - run: uv sync --locked
+      - run: python scripts/setup_node.py
+      - run: python scripts/node.py npm ci --no-audit --no-fund
+      - run: uv run --locked python scripts/check.py
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: release-notes
+          path: release-notes.md
+  publish:
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version-file: .python-version
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: release-notes
+      - name: Create release once
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/publish_release.py
