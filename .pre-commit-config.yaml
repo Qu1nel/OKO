@@ -1,0 +1,19 @@
+minimum_pre_commit_version: '4.7.0'
+repos:
+  - repo: local
+    hooks:
+      - id: python-lint
+        name: Python lint (staged)
+        language: unsupported
+        entry: uv run --no-project --no-config --no-sync --offline --no-python-downloads --python .venv python scripts/precommit.py lint
+        types: [python]
+      - id: python-format
+        name: Python format (staged)
+        language: unsupported
+        entry: uv run --no-project --no-config --no-sync --offline --no-python-downloads --python .venv python scripts/precommit.py format
+        types: [python]
+      - id: frontend-format
+        name: Frontend format (staged)
+        language: unsupported
+        entry: uv run --no-project --no-config --no-sync --offline --no-python-downloads --python .venv python scripts/precommit.py frontend
+        files: '(^frontend/.*\.(ts|css)$|^vite\.config\.ts$|^tsconfig\.json$|^package\.json$|^\.prettierrc\.json$)'
