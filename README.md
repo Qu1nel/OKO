@@ -1,7 +1,7 @@
 # OKO
 
-An app for short, local-first study sessions with your own flashcards. The project is being set up;
-there is no user interface yet.
+A local-first flashcard app for short study sessions, with spaced repetition and forgetting-curve insights.
+The project is being set up; there is no user interface yet.
 
 Application code lives in [`src/oko/`](src/oko/), with frontend assets in [`frontend/`](frontend/).
 The public tools in [`scripts/`](scripts/) handle setup, checks, pre-commit, and releases, locally and in CI.
