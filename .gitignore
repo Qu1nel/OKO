@@ -3,7 +3,7 @@
 __pycache__/
 *.py[cod]
 
-# Tool caches and coverage
+# Tool caches and coverage reports
 .ruff_cache/
 .ty_cache/
 .pytest_cache/
@@ -27,3 +27,9 @@ Thumbs.db
 .env
 .env.*
 !.env.example
+
+# Project tools and JavaScript dependencies
+.tools/
+node_modules/
+.vite/
+*.tsbuildinfo

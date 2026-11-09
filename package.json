@@ -1,0 +1,23 @@
+{
+  "name": "oko",
+  "version": "0.1.0",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "26.13.0",
+    "npm": "11.20.0"
+  },
+  "packageManager": "npm@11.20.0",
+  "scripts": {
+    "check:types": "tsc --noEmit",
+    "check:format": "prettier --check frontend vite.config.ts tsconfig.json package.json .prettierrc.json",
+    "format": "prettier --write frontend vite.config.ts tsconfig.json package.json .prettierrc.json",
+    "build": "vite build"
+  },
+  "devDependencies": {
+    "prettier": "3.9.10",
+    "typescript": "7.0.2",
+    "vite": "8.3.6"
+  }
+}
