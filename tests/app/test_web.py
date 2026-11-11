@@ -38,7 +38,8 @@ class AssetLinks(HTMLParser):
 class PageTests(SimpleTestCase):
     def test_home_uses_real_manifest_and_allows_only_safe_methods(self) -> None:
         response = self.client.get("/")
-        self.assertContains(response, "Технический каркас")
+        self.assertContains(response, "Открыть дашборд")
+        self.assertContains(response, 'href="/dashboard/"')
         parser = AssetLinks()
         parser.feed(response.content.decode())
         script, styles = frontend_assets()
@@ -46,6 +47,20 @@ class PageTests(SimpleTestCase):
         self.assertEqual(self.client.head("/").status_code, 200)
         self.assertEqual(self.client.post("/").status_code, 405)
         self.assertEqual(self.client.get("/missing/").status_code, 404)
+
+    def test_dashboard_renders_the_empty_state_and_reads_the_theme_cookie(self) -> None:
+        self.client.cookies["oko_theme"] = "dark"
+        for path in ("/", "/dashboard/"):
+            with self.subTest(path=path):
+                self.assertContains(self.client.get(path), 'data-theme="dark"')
+
+        self.client.cookies["oko_theme"] = "unexpected"
+        response = self.client.get("/dashboard/")
+        self.assertContains(response, 'data-theme="light"')
+        self.assertContains(response, "Здесь появится график")
+        self.assertContains(response, "Пока нечего повторять")
+        self.assertEqual(self.client.head("/dashboard/").status_code, 200)
+        self.assertEqual(self.client.post("/dashboard/").status_code, 405)
 
     def test_invalid_build_fails_with_rebuild_instruction_without_touching_real_dist(self) -> None:
         self.enterContext(self.assertLogs("django.request", level="ERROR"))
@@ -119,13 +134,17 @@ class BuiltPageHTTPTests(StaticLiveServerTestCase):
         self.assertTrue(resources, "Expected the local font referenced by the built CSS")
 
     def test_live_html_and_local_assets_are_served_by_django_staticfiles(self) -> None:
-        with urlopen(self.live_server_url + "/", timeout=10) as response:
-            self.assertEqual(response.status, 200)
-            self.assertEqual(response.headers.get_content_type(), "text/html")
-            parser = AssetLinks()
-            parser.feed(response.read().decode())
-        self.assertGreaterEqual(len(parser.urls), 2)
-        for path in parser.urls:
+        page_assets = []
+        for route in ("/", "/dashboard/"):
+            with self.subTest(route=route), urlopen(self.live_server_url + route, timeout=10) as response:
+                self.assertEqual(response.status, 200)
+                self.assertEqual(response.headers.get_content_type(), "text/html")
+                parser = AssetLinks()
+                parser.feed(response.read().decode())
+                self.assertGreaterEqual(len(parser.urls), 2)
+                page_assets.append(parser.urls)
+        self.assertEqual(page_assets[0], page_assets[1])
+        for path in page_assets[0]:
             self.assertTrue(path.startswith("/static/assets/"))
             with urlopen(self.live_server_url + path, timeout=10) as response:
                 self.assertEqual(response.status, 200)

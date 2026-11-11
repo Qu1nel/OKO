@@ -6,6 +6,7 @@ from oko.assets import frontend_assets
 
 
 @require_safe
-def home(request: HttpRequest) -> HttpResponse:
+def page(request: HttpRequest, template: str) -> HttpResponse:
     script, styles = frontend_assets()
-    return render(request, "oko/home.html", {"script": script, "styles": styles})
+    theme = "dark" if request.COOKIES.get("oko_theme") == "dark" else "light"
+    return render(request, template, {"script": script, "styles": styles, "theme": theme})

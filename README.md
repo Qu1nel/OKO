@@ -1,7 +1,7 @@
 # OKO
 
 A local-first flashcard app for short study sessions, with spaced repetition and forgetting-curve insights.
-The first technical page connects Django templates to locally built CSS and TypeScript.
+The landing page leads to an empty dashboard. Both use Django templates and locally built CSS and TypeScript.
 Flashcards, storage, and study sessions are still to come.
 
 Application code lives in [`src/oko/`](src/oko/), with frontend assets in [`frontend/`](frontend/).
@@ -31,15 +31,15 @@ Place tests in the directory for the area they exercise. Use [`tests/app/`](test
 FSRS, and web application, and [`tests/tooling/`](tests/tooling/) for development commands, hooks, and releases.
 Include `__init__.py` in each test subdirectory so the existing `unittest` discovery can find its `test_*.py` files.
 
-Run the technical page from this source checkout after installing the dependencies above:
+Run the app from this source checkout after installing the dependencies above:
 
 ```console
 uv run --locked python scripts/node.py npm run build
 uv run --locked python manage.py runserver 127.0.0.1:8000
 ```
 
-Open `http://127.0.0.1:8000/`. Try the response button and the light/dark toggle.
-These controls keep their state only until reload; the page creates no database or user data.
+Open `http://127.0.0.1:8000/` and follow the link to the dashboard.
+The theme switch uses a session cookie to carry the choice between these pages. The app creates no database or user data.
 This uses Django's development server and development-only settings. Packaged wheel deployment is not supported yet.
 
 Vite builds local assets and `dist/.vite/manifest.json`; Django reads the entry's JS/CSS paths from it.

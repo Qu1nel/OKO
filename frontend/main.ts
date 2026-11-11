@@ -1,23 +1,15 @@
 import './styles.css';
 
-const check = document.querySelector<HTMLButtonElement>('[data-check]');
-const status = document.querySelector<HTMLParagraphElement>('[data-status]');
-const theme = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
+const toggle = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
+const label = toggle?.querySelector('[data-theme-label]');
 
-if (check && status && theme) {
-  let checks = 0;
-  check.disabled = false;
-  theme.disabled = false;
-  status.textContent = 'Страница готова к проверке.';
-
-  check.addEventListener('click', () => {
-    checks += 1;
-    status.textContent = `Отклик получен: ${checks}.`;
-  });
-
-  theme.addEventListener('click', () => {
-    const dark = document.documentElement.dataset.theme !== 'dark';
-    document.documentElement.dataset.theme = dark ? 'dark' : 'light';
-    theme.setAttribute('aria-pressed', String(dark));
+if (toggle && label) {
+  toggle.hidden = false;
+  toggle.addEventListener('click', () => {
+    const root = document.documentElement;
+    const theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    root.dataset.theme = theme;
+    label.textContent = theme === 'dark' ? 'Светлая тема' : 'Тёмная тема';
+    document.cookie = `oko_theme=${theme}; Path=/; SameSite=Strict`;
   });
 }

@@ -1,28 +1,29 @@
-{% load static %}
-<!doctype html>
-<html lang="ru" data-theme="light">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>OKO — технический каркас</title>
-    <link rel="icon" href="data:,">
-    {% for style in styles %}<link rel="stylesheet" href="{% static style %}">{% endfor %}
-    <script type="module" src="{% static script %}"></script>
-  </head>
-  <body>
-    <main>
-      <header>
-        <p class="brand">OKO</p>
-        <button type="button" data-theme-toggle aria-pressed="false" disabled>Тёмная тема</button>
-      </header>
-      <section aria-labelledby="page-title">
-        <p class="eyebrow">Технический каркас</p>
-        <h1 id="page-title">Основа для первых карточек.</h1>
-        <p>Пока здесь только проверка страницы. Коллекция и занятия появятся в следующих шагах.</p>
-        <button type="button" class="primary" data-check disabled>Проверить отклик</button>
-        <p class="status" role="status" data-status>Ожидание JavaScript…</p>
-        <noscript><p>Для проверки отклика включите JavaScript в браузере.</p></noscript>
-      </section>
+{% extends 'oko/base.html' %}
+{% block title %}OKO — личное пространство для памяти{% endblock %}
+{% block content %}
+  <div class="landing">
+    <header class="landing-header">
+      <p class="brand">ОКО</p>
+      <p class="label landing-tagline">Личное пространство для памяти</p>
+      {% include 'oko/theme_toggle.html' %}
+    </header>
+    <main class="landing-hero">
+      <div class="landing-art" aria-hidden="true"><div class="landing-sign"></div></div>
+      <div class="landing-copy">
+        <p class="label">Твой ритм / Твои знания</p>
+        <h1>Держи знания<br>в фокусе.</h1>
+        <p class="landing-lead">Возвращайся к важному.</p>
+        <p class="landing-description">Карточки и повторения — в одном месте.</p>
+        <a class="primary landing-link" href="{% url 'dashboard' %}">
+          Открыть дашборд <span aria-hidden="true">→</span>
+        </a>
+      </div>
     </main>
-  </body>
-</html>
+    <footer class="landing-footer">
+      <figure>
+        <figcaption class="label">Уильям Шекспир / «Гамлет»</figcaption>
+        <blockquote>«Мы знаем, кто мы, но не знаем, кем можем стать».</blockquote>
+      </figure>
+    </footer>
+  </div>
+{% endblock %}
