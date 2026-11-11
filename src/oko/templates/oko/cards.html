@@ -1,0 +1,23 @@
+{% extends 'oko/sections.html' %}
+{% block title %}OKO — Карточки{% endblock %}
+{% block section %}
+  <header class="dashboard-header">
+    <h1>Карточки</h1>
+    <a class="primary card-action" href="{% url 'card_create' %}">Добавить карточку</a>
+  </header>
+  {% if cards %}
+    <ul class="card-list">
+      {% for card in cards %}
+        <li>
+          <a href="{% url 'card_detail' card.pk %}">{{ card.title|default:card.question|truncatechars:100 }}</a>
+          {% if card.title %}<p>{{ card.question|truncatechars:160 }}</p>{% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <section class="section-empty" aria-labelledby="empty-cards-title">
+      <h2 id="empty-cards-title">Здесь пока нет карточек</h2>
+      <p>Добавьте первую карточку с вопросом и ответом.</p>
+    </section>
+  {% endif %}
+{% endblock %}

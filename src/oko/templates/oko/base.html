@@ -1,0 +1,17 @@
+{% load static %}
+<!doctype html>
+<html lang="ru" data-theme="{{ color_theme }}" data-theme-cookie="{{ color_theme_cookie }}">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}OKO{% endblock %}</title>
+    <link rel="icon" href="data:,">
+    {% for style in styles %}<link rel="stylesheet" href="{% static style %}">{% endfor %}
+    {% if script %}<script type="module" src="{% static script %}"></script>{% endif %}
+    {% block head %}{% endblock %}
+  </head>
+  <body>
+    {% include 'oko/notifications.html' %}
+    {% block content %}{% endblock %}
+  </body>
+</html>

@@ -1,0 +1,28 @@
+{% extends 'oko/sections.html' %}
+{% block title %}OKO — обзор запоминания{% endblock %}
+{% block section %}
+  <header class="dashboard-header">
+    <h1>Обзор запоминания</h1>
+    <a class="primary card-action" href="{% url 'card_create' %}">Добавить карточку</a>
+  </header>
+  <p class="dashboard-topics"><span>Все темы</span></p>
+  <section class="dashboard-graph" aria-labelledby="graph-title">
+    <h2 id="graph-title">Вероятность вспомнить</h2>
+    <div class="graph-placeholder">
+      <strong>Здесь появится график</strong>
+      <p>Прогноз появится, когда будут изученные карточки.</p>
+    </div>
+  </section>
+  <div class="dashboard-panels">
+    <section aria-labelledby="study-title">
+      <h2 id="study-title">Пока нечего повторять</h2>
+      <p>Добавьте карточку, чтобы начать занятие.</p>
+      <button type="button" disabled>Начать занятие</button>
+    </section>
+    <section aria-labelledby="cards-title">
+      <h2 id="cards-title">Карточки</h2>
+      <p>Здесь будут ваши формулы, слова и термины.</p>
+      <a class="card-action" href="{% url 'card_create' %}">Создать карточку</a>
+    </section>
+  </div>
+{% endblock %}

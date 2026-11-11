@@ -1,0 +1,16 @@
+{% extends 'oko/sections.html' %}
+{% block title %}OKO — {{ card.title|default:"Карточка" }}{% endblock %}
+{% block section %}
+  <header class="dashboard-header"><h1>{{ card.title|default:"Карточка" }}</h1></header>
+  <a class="card-back" href="{% url 'cards' %}">← К карточкам</a>
+  <div class="card-columns">
+    <section class="card-side" aria-labelledby="card-question-title">
+      <h2 class="label" id="card-question-title">Вопрос</h2>
+      <p class="card-text">{{ card.question }}</p>
+    </section>
+    <section class="card-side" aria-labelledby="card-answer-title">
+      <h2 class="label" id="card-answer-title">Ответ</h2>
+      <p class="card-text">{{ card.answer }}</p>
+    </section>
+  </div>
+{% endblock %}

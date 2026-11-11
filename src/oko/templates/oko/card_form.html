@@ -1,0 +1,34 @@
+{% extends 'oko/sections.html' %}
+{% block title %}OKO — Новая карточка{% endblock %}
+{% block section %}
+  <header class="dashboard-header"><h1>Редактор карточки</h1></header>
+  <a class="card-back" href="{% url 'cards' %}">← К карточкам</a>
+
+  <form method="post" class="card-editor">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <div class="card-columns">
+      <section aria-labelledby="card-fields-title" class="card-fields">
+        <h2 class="label" id="card-fields-title">Содержимое</h2>
+        {{ form.title.as_field_group }}
+        {{ form.question.as_field_group }}
+        {{ form.answer.as_field_group }}
+      </section>
+      <section aria-labelledby="card-preview-title" class="card-preview">
+        <h2 class="label" id="card-preview-title">Предпросмотр</h2>
+        <div class="card-side">
+          <p class="label">Вопрос</p>
+          <p class="card-text" data-card-preview="{{ form.question.id_for_label }}">{{ form.question.value|default:"Пока пусто" }}</p>
+        </div>
+        <div class="card-side">
+          <p class="label">Ответ</p>
+          <p class="card-text" data-card-preview="{{ form.answer.id_for_label }}">{{ form.answer.value|default:"Пока пусто" }}</p>
+        </div>
+      </section>
+    </div>
+    <div class="card-form-actions">
+      <a href="{% url 'cards' %}">Отменить</a>
+      <button type="submit" class="primary">Сохранить карточку</button>
+    </div>
+  </form>
+{% endblock %}

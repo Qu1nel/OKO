@@ -1,0 +1,22 @@
+{% extends 'oko/sections.html' %}
+{% block title %}{{ code }} — {{ heading }}{% endblock %}
+{% block head %}
+  {% if not styles %}
+    <style>
+      :root { color-scheme: light; }
+      :root[data-theme="dark"] { color-scheme: dark; }
+      body { margin: 2rem; font-family: system-ui, sans-serif; background: Canvas; color: CanvasText; }
+      .dashboard-sidebar { display: none; }
+      .error-actions a { margin-inline-end: 1rem; }
+    </style>
+  {% endif %}
+{% endblock %}
+{% block section %}
+  <p class="label">Ошибка / {{ code }}</p>
+  <header class="dashboard-header"><h1>{{ heading }}</h1></header>
+  <p class="error-message">{{ message }}</p>
+  <div class="error-actions">
+    <a href="{% url 'dashboard' %}">К обзору</a>
+    <a href="{% url 'home' %}">На главную</a>
+  </div>
+{% endblock %}

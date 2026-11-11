@@ -1,0 +1,19 @@
+{% extends 'oko/base.html' %}
+{% block content %}
+  <div class="dashboard">
+    <aside class="dashboard-sidebar">
+      <a class="brand" href="{% url 'home' %}" aria-label="ОКО — главная">ОКО</a>
+      <p class="label sidebar-caption">Личная память</p>
+      <nav class="section-nav" aria-label="Разделы">
+        {% for route, label in sections %}
+          <a href="{% url route %}"{% if active_section == route %} aria-current="page"{% endif %}>{{ label }}</a>
+        {% endfor %}
+      </nav>
+      {% include 'oko/theme_toggle.html' %}
+      <div class="sidebar-sign" aria-hidden="true"></div>
+    </aside>
+    <main class="dashboard-content">
+      {% block section %}{% endblock %}
+    </main>
+  </div>
+{% endblock %}

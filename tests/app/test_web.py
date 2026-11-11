@@ -1,24 +1,19 @@
 import json
-import os
 import re
 import tempfile
 from html.parser import HTMLParser
 from pathlib import Path
+from unittest.mock import patch
 from urllib.error import HTTPError
 from urllib.parse import urljoin, urlsplit
 from urllib.request import urlopen
 
-import django
+from django.conf import settings
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from django.core.exceptions import ImproperlyConfigured
+from django.test import Client, SimpleTestCase, TestCase, override_settings
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "oko.settings")
-django.setup()
-
-from django.conf import settings  # noqa: E402
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase  # noqa: E402
-from django.core.exceptions import ImproperlyConfigured  # noqa: E402
-from django.test import SimpleTestCase, override_settings  # noqa: E402
-
-from oko.assets import frontend_assets  # noqa: E402
+from oko.assets import frontend_assets
 
 
 class AssetLinks(HTMLParser):
@@ -38,7 +33,8 @@ class AssetLinks(HTMLParser):
 class PageTests(SimpleTestCase):
     def test_home_uses_real_manifest_and_allows_only_safe_methods(self) -> None:
         response = self.client.get("/")
-        self.assertContains(response, "Технический каркас")
+        self.assertContains(response, "Открыть дашборд")
+        self.assertContains(response, 'href="/dashboard/"')
         parser = AssetLinks()
         parser.feed(response.content.decode())
         script, styles = frontend_assets()
@@ -46,6 +42,75 @@ class PageTests(SimpleTestCase):
         self.assertEqual(self.client.head("/").status_code, 200)
         self.assertEqual(self.client.post("/").status_code, 405)
         self.assertEqual(self.client.get("/missing/").status_code, 404)
+
+
+@override_settings(ALLOWED_HOSTS=["testserver"])
+class SectionTests(TestCase):
+    def test_dashboard_renders_the_empty_state_and_reads_the_theme_cookie(self) -> None:
+        for value, theme in (("dark", "dark"), ("light", "light"), ("unexpected", "light")):
+            self.client.cookies["oko_theme"] = value
+            for path in ("/", "/dashboard/", "/cards/", "/statistics/", "/settings/"):
+                with self.subTest(cookie=value, path=path):
+                    response = self.client.get(path)
+                    self.assertContains(response, f'data-theme="{theme}"')
+                    self.assertIn("Cookie", response.headers["Vary"])
+
+        self.client.cookies.clear()
+        response = self.client.get("/dashboard/")
+        self.assertContains(response, 'data-theme="light"')
+        self.assertContains(response, "Здесь появится график")
+        self.assertContains(response, "Пока нечего повторять")
+        self.assertEqual(self.client.head("/dashboard/").status_code, 200)
+        self.assertEqual(self.client.post("/dashboard/").status_code, 405)
+
+    def test_sections_share_navigation_and_mark_the_current_page(self) -> None:
+        sections = {
+            "/dashboard/": "Обзор запоминания",
+            "/cards/": "Карточки",
+            "/statistics/": "Статистика",
+            "/settings/": "Настройки",
+        }
+        for path, heading in sections.items():
+            with self.subTest(path=path):
+                response = self.client.get(path)
+                self.assertContains(response, f"<h1>{heading}</h1>", html=True)
+                for link in sections:
+                    self.assertContains(response, f'href="{link}"')
+                self.assertContains(response, f'href="{path}" aria-current="page"')
+                self.assertContains(response, 'aria-current="page"', count=1)
+
+
+@override_settings(ALLOWED_HOSTS=["testserver"])
+class ErrorPageTests(SimpleTestCase):
+    @override_settings(DEBUG=False)
+    def test_unknown_url_returns_the_themed_404_with_recovery_links(self) -> None:
+        self.client.cookies["oko_theme"] = "dark"
+        response = self.client.get("/missing/")
+        self.assertContains(response, "Страница не найдена", status_code=404)
+        self.assertContains(response, 'data-theme="dark"', status_code=404)
+        self.assertContains(response, '<a href="/dashboard/">К обзору</a>', status_code=404)
+        self.assertContains(response, '<a href="/">На главную</a>', status_code=404)
+        self.assertNotContains(response, 'aria-current="page"', status_code=404)
+
+    @override_settings(DEBUG=False)
+    def test_server_error_preserves_500_with_or_without_the_frontend_build(self) -> None:
+        client = Client(raise_request_exception=False)
+        client.cookies["oko_theme"] = "dark"
+        for error_build in (frontend_assets(), ImproperlyConfigured("Build unavailable")):
+            with (
+                self.subTest(has_build=isinstance(error_build, tuple)),
+                self.assertLogs("django.request", level="ERROR"),
+                patch("oko.views.frontend_assets", side_effect=[RuntimeError("Unexpected failure"), error_build]),
+            ):
+                response = client.get("/settings/")
+                self.assertContains(response, "Не удалось открыть страницу", status_code=500)
+                self.assertContains(response, 'data-theme="dark"', status_code=500)
+                self.assertContains(response, '<a href="/dashboard/">К обзору</a>', status_code=500)
+                self.assertNotContains(response, "Unexpected failure", status_code=500)
+                if isinstance(error_build, tuple):
+                    self.assertContains(response, 'type="module"', status_code=500)
+                else:
+                    self.assertNotContains(response, 'type="module"', status_code=500)
 
     def test_invalid_build_fails_with_rebuild_instruction_without_touching_real_dist(self) -> None:
         self.enterContext(self.assertLogs("django.request", level="ERROR"))
@@ -119,13 +184,17 @@ class BuiltPageHTTPTests(StaticLiveServerTestCase):
         self.assertTrue(resources, "Expected the local font referenced by the built CSS")
 
     def test_live_html_and_local_assets_are_served_by_django_staticfiles(self) -> None:
-        with urlopen(self.live_server_url + "/", timeout=10) as response:
-            self.assertEqual(response.status, 200)
-            self.assertEqual(response.headers.get_content_type(), "text/html")
-            parser = AssetLinks()
-            parser.feed(response.read().decode())
-        self.assertGreaterEqual(len(parser.urls), 2)
-        for path in parser.urls:
+        page_assets = []
+        for route in ("/", "/dashboard/"):
+            with self.subTest(route=route), urlopen(self.live_server_url + route, timeout=10) as response:
+                self.assertEqual(response.status, 200)
+                self.assertEqual(response.headers.get_content_type(), "text/html")
+                parser = AssetLinks()
+                parser.feed(response.read().decode())
+                self.assertGreaterEqual(len(parser.urls), 2)
+                page_assets.append(parser.urls)
+        self.assertEqual(page_assets[0], page_assets[1])
+        for path in page_assets[0]:
             self.assertTrue(path.startswith("/static/assets/"))
             with urlopen(self.live_server_url + path, timeout=10) as response:
                 self.assertEqual(response.status, 200)
