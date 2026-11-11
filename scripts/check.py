@@ -1,4 +1,4 @@
-"""Run the same project checks locally and in CI without modifying files."""
+"""Run project checks, rebuilding frontend assets before HTTP integration tests."""
 
 import argparse
 import subprocess
@@ -27,10 +27,20 @@ def main() -> int:
     )
     selected = parser.parse_args().only
     results: dict[str, int] = {}
+    build_result: int | None = None
     for name, arguments in CHECKS.items():
         if selected and name not in selected and name.split("-", 1)[0] not in selected:
             continue
         print(f"\n[{name}]", flush=True)
+        if name == "python-tests":
+            print("Building frontend assets required by HTTP tests", flush=True)
+            build_result = subprocess.run([sys.executable, *CHECKS["frontend-build"]], cwd=ROOT, check=False).returncode
+            if build_result:
+                results[name] = build_result
+                continue
+        if name == "frontend-build" and build_result is not None:
+            results[name] = build_result
+            continue
         results[name] = subprocess.run([sys.executable, *arguments], cwd=ROOT, check=False).returncode
 
     print("\n" + ", ".join(f"{name}: {'PASS' if code == 0 else 'FAIL'}" for name, code in results.items()))

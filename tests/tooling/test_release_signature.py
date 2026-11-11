@@ -10,7 +10,7 @@ from unittest.mock import patch
 
 from scripts.release import validate_tag
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 
 
 class TagSignatureTests(unittest.TestCase):

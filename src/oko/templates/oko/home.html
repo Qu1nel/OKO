@@ -1,0 +1,28 @@
+{% load static %}
+<!doctype html>
+<html lang="ru" data-theme="light">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OKO — технический каркас</title>
+    <link rel="icon" href="data:,">
+    {% for style in styles %}<link rel="stylesheet" href="{% static style %}">{% endfor %}
+    <script type="module" src="{% static script %}"></script>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="brand">OKO</p>
+        <button type="button" data-theme-toggle aria-pressed="false" disabled>Тёмная тема</button>
+      </header>
+      <section aria-labelledby="page-title">
+        <p class="eyebrow">Технический каркас</p>
+        <h1 id="page-title">Основа для первых карточек.</h1>
+        <p>Пока здесь только проверка страницы. Коллекция и занятия появятся в следующих шагах.</p>
+        <button type="button" class="primary" data-check disabled>Проверить отклик</button>
+        <p class="status" role="status" data-status>Ожидание JavaScript…</p>
+        <noscript><p>Для проверки отклика включите JavaScript в браузере.</p></noscript>
+      </section>
+    </main>
+  </body>
+</html>

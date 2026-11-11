@@ -15,7 +15,7 @@ from scripts.publish_release import api, publish
 from scripts.release import release_notes
 from scripts.setup_node import bootstrap_lock, check_digest, extract
 
-WORK = Path(__file__).resolve().parents[1] / ".work"
+WORK = Path(__file__).resolve().parents[2] / ".work"
 
 
 def setUpModule():
