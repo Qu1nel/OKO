@@ -1,4 +1,4 @@
-const themeMaxAge = 365 * 24 * 60 * 60;
+const themeMaxAge = 90 * 24 * 60 * 60;
 
 type Theme = 'light' | 'dark';
 

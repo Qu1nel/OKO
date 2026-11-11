@@ -7,7 +7,8 @@
     <title>{% block title %}OKO{% endblock %}</title>
     <link rel="icon" href="data:,">
     {% for style in styles %}<link rel="stylesheet" href="{% static style %}">{% endfor %}
-    <script type="module" src="{% static script %}"></script>
+    {% if script %}<script type="module" src="{% static script %}"></script>{% endif %}
+    {% block head %}{% endblock %}
   </head>
   <body>
     {% block content %}{% endblock %}

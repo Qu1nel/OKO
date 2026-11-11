@@ -4,6 +4,7 @@ import re
 import tempfile
 from html.parser import HTMLParser
 from pathlib import Path
+from unittest.mock import patch
 from urllib.error import HTTPError
 from urllib.parse import urljoin, urlsplit
 from urllib.request import urlopen
@@ -16,7 +17,7 @@ django.setup()
 from django.conf import settings  # noqa: E402
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase  # noqa: E402
 from django.core.exceptions import ImproperlyConfigured  # noqa: E402
-from django.test import SimpleTestCase, override_settings  # noqa: E402
+from django.test import Client, SimpleTestCase, override_settings  # noqa: E402
 
 from oko.assets import frontend_assets  # noqa: E402
 
@@ -51,7 +52,7 @@ class PageTests(SimpleTestCase):
     def test_dashboard_renders_the_empty_state_and_reads_the_theme_cookie(self) -> None:
         for value, theme in (("dark", "dark"), ("light", "light"), ("unexpected", "light")):
             self.client.cookies["oko_theme"] = value
-            for path in ("/", "/dashboard/"):
+            for path in ("/", "/dashboard/", "/cards/", "/statistics/", "/settings/"):
                 with self.subTest(cookie=value, path=path):
                     response = self.client.get(path)
                     self.assertContains(response, f'data-theme="{theme}"')
@@ -64,6 +65,52 @@ class PageTests(SimpleTestCase):
         self.assertContains(response, "Пока нечего повторять")
         self.assertEqual(self.client.head("/dashboard/").status_code, 200)
         self.assertEqual(self.client.post("/dashboard/").status_code, 405)
+
+    def test_sections_share_navigation_and_mark_the_current_page(self) -> None:
+        sections = {
+            "/dashboard/": "Обзор запоминания",
+            "/cards/": "Карточки",
+            "/statistics/": "Статистика",
+            "/settings/": "Настройки",
+        }
+        for path, heading in sections.items():
+            with self.subTest(path=path):
+                response = self.client.get(path)
+                self.assertContains(response, f"<h1>{heading}</h1>", html=True)
+                for link in sections:
+                    self.assertContains(response, f'href="{link}"')
+                self.assertContains(response, f'href="{path}" aria-current="page"')
+                self.assertContains(response, 'aria-current="page"', count=1)
+
+    @override_settings(DEBUG=False)
+    def test_unknown_url_returns_the_themed_404_with_recovery_links(self) -> None:
+        self.client.cookies["oko_theme"] = "dark"
+        response = self.client.get("/missing/")
+        self.assertContains(response, "Страница не найдена", status_code=404)
+        self.assertContains(response, 'data-theme="dark"', status_code=404)
+        self.assertContains(response, '<a href="/dashboard/">К обзору</a>', status_code=404)
+        self.assertContains(response, '<a href="/">На главную</a>', status_code=404)
+        self.assertNotContains(response, 'aria-current="page"', status_code=404)
+
+    @override_settings(DEBUG=False)
+    def test_server_error_preserves_500_with_or_without_the_frontend_build(self) -> None:
+        client = Client(raise_request_exception=False)
+        client.cookies["oko_theme"] = "dark"
+        for error_build in (frontend_assets(), ImproperlyConfigured("Build unavailable")):
+            with (
+                self.subTest(has_build=isinstance(error_build, tuple)),
+                self.assertLogs("django.request", level="ERROR"),
+                patch("oko.views.frontend_assets", side_effect=[RuntimeError("Unexpected failure"), error_build]),
+            ):
+                response = client.get("/settings/")
+                self.assertContains(response, "Не удалось открыть страницу", status_code=500)
+                self.assertContains(response, 'data-theme="dark"', status_code=500)
+                self.assertContains(response, '<a href="/dashboard/">К обзору</a>', status_code=500)
+                self.assertNotContains(response, "Unexpected failure", status_code=500)
+                if isinstance(error_build, tuple):
+                    self.assertContains(response, 'type="module"', status_code=500)
+                else:
+                    self.assertNotContains(response, 'type="module"', status_code=500)
 
     def test_invalid_build_fails_with_rebuild_instruction_without_touching_real_dist(self) -> None:
         self.enterContext(self.assertLogs("django.request", level="ERROR"))

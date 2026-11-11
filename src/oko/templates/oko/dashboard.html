@@ -1,39 +1,28 @@
-{% extends 'oko/base.html' %}
+{% extends 'oko/sections.html' %}
 {% block title %}OKO — обзор запоминания{% endblock %}
-{% block content %}
-  <div class="dashboard">
-    <aside class="dashboard-sidebar">
-      <a class="brand" href="{% url 'home' %}" aria-label="ОКО — главная">ОКО</a>
-      <p class="label sidebar-caption">Личная память</p>
-      <p class="dashboard-current" aria-current="page">Сегодня</p>
-      {% include 'oko/theme_toggle.html' %}
-      <div class="sidebar-sign" aria-hidden="true"></div>
-    </aside>
-    <main class="dashboard-content">
-      <header class="dashboard-header">
-        <h1>Обзор запоминания</h1>
-        <button class="primary" type="button" disabled>Добавить карточку</button>
-      </header>
-      <p class="dashboard-topics"><span>Все темы</span></p>
-      <section class="dashboard-graph" aria-labelledby="graph-title">
-        <h2 id="graph-title">Вероятность вспомнить</h2>
-        <div class="graph-placeholder">
-          <strong>Здесь появится график</strong>
-          <p>Прогноз появится, когда будут изученные карточки.</p>
-        </div>
-      </section>
-      <div class="dashboard-panels">
-        <section aria-labelledby="study-title">
-          <h2 id="study-title">Пока нечего повторять</h2>
-          <p>Добавьте карточку, чтобы начать занятие.</p>
-          <button type="button" disabled>Начать занятие</button>
-        </section>
-        <section aria-labelledby="cards-title">
-          <h2 id="cards-title">Карточки</h2>
-          <p>Здесь будут ваши формулы, слова и термины.</p>
-          <button type="button" disabled>Создать первую карточку</button>
-        </section>
-      </div>
-    </main>
+{% block section %}
+  <header class="dashboard-header">
+    <h1>Обзор запоминания</h1>
+    <button class="primary" type="button" disabled>Добавить карточку</button>
+  </header>
+  <p class="dashboard-topics"><span>Все темы</span></p>
+  <section class="dashboard-graph" aria-labelledby="graph-title">
+    <h2 id="graph-title">Вероятность вспомнить</h2>
+    <div class="graph-placeholder">
+      <strong>Здесь появится график</strong>
+      <p>Прогноз появится, когда будут изученные карточки.</p>
+    </div>
+  </section>
+  <div class="dashboard-panels">
+    <section aria-labelledby="study-title">
+      <h2 id="study-title">Пока нечего повторять</h2>
+      <p>Добавьте карточку, чтобы начать занятие.</p>
+      <button type="button" disabled>Начать занятие</button>
+    </section>
+    <section aria-labelledby="cards-title">
+      <h2 id="cards-title">Карточки</h2>
+      <p>Здесь будут ваши формулы, слова и термины.</p>
+      <button type="button" disabled>Создать первую карточку</button>
+    </section>
   </div>
 {% endblock %}

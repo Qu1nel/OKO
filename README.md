@@ -39,13 +39,15 @@ uv run --locked python manage.py runserver 127.0.0.1:8000
 ```
 
 Open `http://127.0.0.1:8000/` and follow the link to the dashboard.
-The light or dark theme follows the browser across pages and restarts. The preference is stored in a cookie for a year.
+The sidebar links to Cards, Statistics, and Settings. The sections show empty states while their features are developed.
+The light or dark theme follows the browser across pages and restarts. The cookie expires after 90 days without a visit.
 The app creates no database or user data.
 This uses Django's development server and development-only settings. Packaged wheel deployment is not supported yet.
 
 Vite builds local assets and `dist/.vite/manifest.json`; Django reads the entry's JS/CSS paths from it.
 Only `dist/assets` is served under `/static/assets/`. Rebuild after frontend changes; no Vite dev server is needed.
-If the build is missing or invalid, the page reports a rebuild instruction rather than silently omitting assets.
+If the build is missing or invalid, Django reports a rebuild instruction in development mode.
+With `DEBUG=False`, Django shows custom 404 and 500 pages. The error pages remain readable if the build is unavailable.
 After installation and a build, this page requires no external network resources.
 `python-tests` builds the assets before its HTTP tests and stops if that build fails; Node/npm dependencies
 are therefore required for `--only python` and `--only python-tests` too. CI prepares them in the Python test job.
