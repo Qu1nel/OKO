@@ -39,7 +39,8 @@ uv run --locked python manage.py runserver 127.0.0.1:8000
 ```
 
 Open `http://127.0.0.1:8000/` and follow the link to the dashboard.
-The theme switch uses a session cookie to carry the choice between these pages. The app creates no database or user data.
+The light or dark theme follows the browser across pages and restarts. The preference is stored in a cookie for a year.
+The app creates no database or user data.
 This uses Django's development server and development-only settings. Packaged wheel deployment is not supported yet.
 
 Vite builds local assets and `dist/.vite/manifest.json`; Django reads the entry's JS/CSS paths from it.

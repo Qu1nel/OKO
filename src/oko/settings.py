@@ -18,7 +18,13 @@ MIDDLEWARE = [
 ]
 ROOT_URLCONF = "oko.urls"
 WSGI_APPLICATION = "oko.wsgi.application"
-TEMPLATES = [{"BACKEND": "django.template.backends.django.DjangoTemplates", "APP_DIRS": True}]
+TEMPLATES = [
+    {
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "APP_DIRS": True,
+        "OPTIONS": {"context_processors": ["oko.theme.theme_context"]},
+    }
+]
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [("assets", VITE_DIST / "assets")]
 USE_TZ = True

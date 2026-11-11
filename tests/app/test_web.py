@@ -49,12 +49,15 @@ class PageTests(SimpleTestCase):
         self.assertEqual(self.client.get("/missing/").status_code, 404)
 
     def test_dashboard_renders_the_empty_state_and_reads_the_theme_cookie(self) -> None:
-        self.client.cookies["oko_theme"] = "dark"
-        for path in ("/", "/dashboard/"):
-            with self.subTest(path=path):
-                self.assertContains(self.client.get(path), 'data-theme="dark"')
+        for value, theme in (("dark", "dark"), ("light", "light"), ("unexpected", "light")):
+            self.client.cookies["oko_theme"] = value
+            for path in ("/", "/dashboard/"):
+                with self.subTest(cookie=value, path=path):
+                    response = self.client.get(path)
+                    self.assertContains(response, f'data-theme="{theme}"')
+                    self.assertIn("Cookie", response.headers["Vary"])
 
-        self.client.cookies["oko_theme"] = "unexpected"
+        self.client.cookies.clear()
         response = self.client.get("/dashboard/")
         self.assertContains(response, 'data-theme="light"')
         self.assertContains(response, "Здесь появится график")

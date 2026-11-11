@@ -131,6 +131,11 @@ button:disabled {
   font-weight: 500;
 }
 
+[data-theme='light'] .theme-label-light,
+[data-theme='dark'] .theme-label-dark {
+  display: none;
+}
+
 .theme-icon {
   margin-inline-end: 0.25rem;
 }
