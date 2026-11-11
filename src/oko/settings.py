@@ -29,11 +29,12 @@ VITE_DIST = BASE_DIR / "dist"
 SECRET_KEY = "oko-local-development-scaffold-only"
 DEBUG = True
 ALLOWED_HOSTS = ["127.0.0.1", "localhost", "[::1]"]
-INSTALLED_APPS = ["django.contrib.staticfiles", "oko"]
+INSTALLED_APPS = ["django.contrib.staticfiles", "django.contrib.messages", "oko"]
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 ROOT_URLCONF = "oko.urls"
@@ -42,11 +43,14 @@ TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "APP_DIRS": True,
-        "OPTIONS": {"context_processors": ["oko.theme.theme_context"]},
+        "OPTIONS": {
+            "context_processors": ["oko.theme.theme_context", "django.contrib.messages.context_processors.messages"]
+        },
     }
 ]
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [("assets", VITE_DIST / "assets")]
+MESSAGE_STORAGE = "django.contrib.messages.storage.cookie.CookieStorage"
 DATABASES = {
     "default": {"ENGINE": "django.db.backends.sqlite3", "NAME": _database_path(), "TEST": {"NAME": ":memory:"}}
 }

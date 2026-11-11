@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- Confirm a successful card save with a one-time dismissible notification.
 - Create the local SQLite directory automatically when applying migrations.
 - Create text flashcards with a live preview, save them locally, and reopen them from the collection.
 - Add navigation to Cards, Statistics, and Settings and themed 404 and 500 pages.

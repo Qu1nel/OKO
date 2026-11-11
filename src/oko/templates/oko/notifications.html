@@ -1,0 +1,14 @@
+{% if messages %}
+  <div class="notification-viewport" data-notification-viewport>
+    <div class="notifications">
+      {% for message in messages %}
+        <div class="notification" data-notification{% if message.level_tag == 'success' %} data-auto-dismiss{% endif %}>
+          {% if message.level_tag == 'success' %}<span class="notification-check" aria-hidden="true">✓</span>{% endif %}
+          <p data-notification-text>{{ message }}</p>
+          <button type="button" class="notification-close" data-notification-close aria-label="Закрыть уведомление" hidden></button>
+        </div>
+      {% endfor %}
+    </div>
+    <div class="notification-announcement" role="status" data-notification-announcement></div>
+  </div>
+{% endif %}

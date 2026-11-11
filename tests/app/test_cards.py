@@ -44,6 +44,7 @@ class CardTests(TestCase):
         self.assertContains(response, "Добавьте текст.")
         self.assertContains(response, "Введите ответ.")
         self.assertContains(response, "Моя карточка")
+        self.assertNotContains(response, "Карточка сохранена")
         self.assertFalse(Card.objects.exists())
 
     def test_write_failure_keeps_the_input_for_retry(self) -> None:
@@ -56,6 +57,7 @@ class CardTests(TestCase):
         self.assertContains(failed, "Не удалось сохранить карточку", status_code=503)
         self.assertContains(failed, "Один ответ", status_code=503)
         self.assertNotContains(failed, "Test database is locked", status_code=503)
+        self.assertNotContains(failed, "Карточка сохранена", status_code=503)
         self.assertFalse(Card.objects.exists())
         logger.error.assert_called_once()
         self.assertRedirects(self.client.post("/cards/new/", data), "/cards/")
@@ -70,3 +72,16 @@ class CardTests(TestCase):
         data["csrfmiddlewaretoken"] = client.cookies["csrftoken"].value
         self.assertRedirects(client.post("/cards/new/", data), "/cards/")
         self.assertEqual(Card.objects.count(), 1)
+
+    def test_save_notification_is_rendered_once_after_the_redirect(self) -> None:
+        self.assertNotContains(self.client.get("/cards/"), "Карточка сохранена")
+        response = self.client.post("/cards/new/", {"question": "Вопрос", "answer": "Ответ"}, follow=True)
+        self.assertEqual(response.redirect_chain, [("/cards/", 302)])
+        self.assertContains(response, "Карточка сохранена", count=1)
+        self.assertNotContains(self.client.get("/cards/"), "Карточка сохранена")
+
+    def test_next_page_uses_the_shared_notification_template(self) -> None:
+        response = self.client.post("/cards/new/", {"question": "Вопрос", "answer": "Ответ"})
+        self.assertRedirects(response, "/cards/", fetch_redirect_response=False)
+        self.assertContains(self.client.get("/dashboard/"), "Карточка сохранена", count=1)
+        self.assertNotContains(self.client.get("/cards/"), "Карточка сохранена")

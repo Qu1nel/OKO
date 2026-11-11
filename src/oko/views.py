@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.core.exceptions import ImproperlyConfigured
 from django.db import OperationalError
 from django.http import HttpRequest, HttpResponse
@@ -56,6 +57,7 @@ def card_create(request: HttpRequest) -> HttpResponse:
             form.add_error(None, "Не удалось сохранить карточку. Попробуйте ещё раз.")
             status = 503
         else:
+            messages.success(request, "Карточка сохранена")
             return redirect("cards")
 
     return _render_page(request, "oko/card_form.html", {"active_section": "cards", "form": form}, status=status)

@@ -1,0 +1,133 @@
+.notification-viewport {
+  --notification-inset: 2rem;
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  overflow: clip;
+  pointer-events: none;
+}
+
+.notifications {
+  position: absolute;
+  inset: var(--notification-inset) var(--notification-inset) auto;
+  display: grid;
+  justify-items: end;
+  gap: 0.5rem;
+}
+
+.notification {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  max-inline-size: 100%;
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 0.625rem;
+  background: var(--canvas);
+  color: var(--text);
+  font-size: 0.875rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+  pointer-events: auto;
+}
+
+[data-theme='dark'] .notification {
+  background: var(--surface);
+}
+
+.notification-check {
+  color: var(--accent);
+  font-size: 1rem;
+}
+
+.notification-close {
+  flex: none;
+  inline-size: 2.5rem;
+  min-block-size: 2.5rem;
+  padding: 0;
+  border: 0;
+  border-radius: 0.25rem;
+  background: transparent;
+}
+
+.notification-close::before {
+  display: block;
+  inline-size: 14px;
+  block-size: 14px;
+  margin: auto;
+  background: currentColor;
+  mask: url('./art/notification-close.svg?no-inline') center / contain no-repeat;
+  content: '';
+}
+
+.notification-announcement {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+@media (max-width: 106rem) {
+  .notifications {
+    inset-block: auto calc(var(--notification-inset) + env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 54rem) {
+  .notification-viewport {
+    --notification-inset: 1rem;
+  }
+
+  .notification-close {
+    inline-size: 2.75rem;
+    min-block-size: 2.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .notification:not(.notification--leaving) {
+    animation: notification-enter 300ms ease-out both;
+  }
+
+  .notification--leaving:not(.notification--manual) {
+    animation: notification-exit 250ms ease-in both;
+  }
+}
+
+@media (max-width: 54rem) and (prefers-reduced-motion: no-preference) {
+  .notification--leaving.notification--manual {
+    animation: notification-fade 150ms ease-out both;
+  }
+}
+
+@keyframes notification-enter {
+  from {
+    opacity: 0;
+    transform: translateX(calc(100% + var(--notification-inset)));
+  }
+}
+
+@keyframes notification-exit {
+  from {
+    opacity: var(--notification-from-opacity);
+    transform: var(--notification-from-transform);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateX(calc(100% + var(--notification-inset)));
+  }
+}
+
+@keyframes notification-fade {
+  from {
+    opacity: var(--notification-from-opacity);
+    transform: var(--notification-from-transform);
+  }
+
+  to {
+    opacity: 0;
+    transform: var(--notification-from-transform);
+  }
+}
