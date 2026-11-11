@@ -9,9 +9,10 @@ import urllib.request
 from pathlib import Path
 
 
-def validate_existing(release: dict, tag: str, commit: str, notes: str) -> None:
-    if release.get("tag_name") != tag or release.get("target_commitish") != commit:
-        raise ValueError("Existing release tag/commit differs from the validated release")
+def validate_existing(release: dict, tag: str, notes: str) -> None:
+    # target_commitish is unused for an existing tag; publish verifies the tag object instead
+    if release.get("tag_name") != tag:
+        raise ValueError("Existing release tag differs from the validated release")
     if (release.get("body") or "").replace("\r\n", "\n").strip() != notes.strip():
         raise ValueError("Existing release notes differ from the validated notes")
     if release.get("draft") or release.get("prerelease"):
@@ -58,7 +59,7 @@ def publish(repository: str, tag: str, commit: str, notes: str) -> None:
         raise ValueError(f"Remote tag signature is not verified: {verification.get('reason', 'missing result')}")
     existing = api("GET", f"{base}/releases/tags/{tag}", allow_missing=True)
     if existing is not None:
-        validate_existing(existing, tag, commit, notes)
+        validate_existing(existing, tag, notes)
         print("Existing release commit and notes match; no changes needed.")
         return
     created = api(
@@ -68,7 +69,7 @@ def publish(repository: str, tag: str, commit: str, notes: str) -> None:
     )
     if created is None:
         raise RuntimeError("GitHub returned no release")
-    validate_existing(created, tag, commit, notes)
+    validate_existing(created, tag, notes)
     print("Created and verified GitHub Release.")
 
 

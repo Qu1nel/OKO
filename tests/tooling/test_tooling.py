@@ -15,7 +15,7 @@ from scripts.publish_release import api, publish
 from scripts.release import release_notes
 from scripts.setup_node import bootstrap_lock, check_digest, extract
 
-WORK = Path(__file__).resolve().parents[1] / ".work"
+WORK = Path(__file__).resolve().parents[2] / ".work"
 
 
 def setUpModule():
@@ -60,14 +60,45 @@ class ReleaseTests(unittest.TestCase):
         with patch("scripts.publish_release.api", side_effect=[ref, tagged, expected]) as request:
             publish("owner/oko", "v0.1.0", commit, "- First\n")
             self.assertTrue(all(call.args[0] == "GET" for call in request.call_args_list))
-        for changed in [{**expected, "body": "different"}, {**expected, "target_commitish": "c" * 40}]:
+        for changed in [
+            {**expected, "body": "different"},
+            {**expected, "tag_name": "v0.2.0"},
+            {**expected, "draft": True},
+            {**expected, "prerelease": True},
+        ]:
             with patch("scripts.publish_release.api", side_effect=[ref, tagged, changed]) as request:
-                with self.assertRaisesRegex(ValueError, "differs|differ"):
+                with self.assertRaises(ValueError):
                     publish("owner/oko", "v0.1.0", commit, "- First\n")
                 self.assertTrue(all(call.args[0] == "GET" for call in request.call_args_list))
         with patch("scripts.publish_release.api", side_effect=[ref, tagged, None, expected]) as request:
             publish("owner/oko", "v0.1.0", commit, "- First\n")
             self.assertEqual(request.call_args_list[-1].args[2]["target_commitish"], commit)
+
+    @patch("builtins.print")
+    def test_existing_release_uses_verified_tag_target_instead_of_target_commitish(self, _print):
+        commit = "a" * 40
+        ref = {"object": {"type": "tag", "sha": "b" * 40}}
+        tagged = {"object": {"type": "commit", "sha": commit}, "verification": {"verified": True}}
+        for commitish in ["main", "c" * 40]:
+            with self.subTest(target_commitish=commitish):
+                existing = {
+                    "tag_name": "v0.1.0",
+                    "target_commitish": commitish,
+                    "body": "- First",
+                    "draft": False,
+                    "prerelease": False,
+                }
+                with patch("scripts.publish_release.api", side_effect=[ref, tagged, existing]) as request:
+                    publish("owner/oko", "v0.1.0", commit, "- First\n")
+                    self.assertEqual([call.args[0] for call in request.call_args_list], ["GET"] * 3)
+
+    def test_conflicting_tag_target_is_rejected_before_reading_or_creating_release(self):
+        ref = {"object": {"type": "tag", "sha": "b" * 40}}
+        tagged = {"object": {"type": "commit", "sha": "c" * 40}, "verification": {"verified": True}}
+        with patch("scripts.publish_release.api", side_effect=[ref, tagged]) as request:
+            with self.assertRaisesRegex(ValueError, "tag no longer points"):
+                publish("owner/oko", "v0.1.0", "a" * 40, "- First\n")
+            self.assertEqual([call.args[0] for call in request.call_args_list], ["GET"] * 2)
 
     def test_unverified_tag_never_reaches_release_creation(self):
         ref = {"object": {"type": "tag", "sha": "b" * 40}}

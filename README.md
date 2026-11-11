@@ -1,7 +1,8 @@
 # OKO
 
 A local-first flashcard app for short study sessions, with spaced repetition and forgetting-curve insights.
-The project is being set up; there is no user interface yet.
+The first technical page connects Django templates to locally built CSS and TypeScript.
+Flashcards, storage, and study sessions are still to come.
 
 Application code lives in [`src/oko/`](src/oko/), with frontend assets in [`frontend/`](frontend/).
 The public tools in [`scripts/`](scripts/) handle setup, checks, pre-commit, and releases, locally and in CI.
@@ -26,7 +27,27 @@ Windows x64 and Linux x64, with archive checksums pinned in the setup script.
 The hook uses the installed uv and existing `.venv`; activation and Python on PATH are not required.
 It does not install packages, create an environment, or access the network.
 
-Vite builds local assets and `dist/.vite/manifest.json` for future Django templates.
+Place tests in the directory for the area they exercise. Use [`tests/app/`](tests/app/) for the runtime,
+FSRS, and web application, and [`tests/tooling/`](tests/tooling/) for development commands, hooks, and releases.
+Include `__init__.py` in each test subdirectory so the existing `unittest` discovery can find its `test_*.py` files.
+
+Run the technical page from this source checkout after installing the dependencies above:
+
+```console
+uv run --locked python scripts/node.py npm run build
+uv run --locked python manage.py runserver 127.0.0.1:8000
+```
+
+Open `http://127.0.0.1:8000/`. Try the response button and the light/dark toggle.
+These controls keep their state only until reload; the page creates no database or user data.
+This uses Django's development server and development-only settings. Packaged wheel deployment is not supported yet.
+
+Vite builds local assets and `dist/.vite/manifest.json`; Django reads the entry's JS/CSS paths from it.
+Only `dist/assets` is served under `/static/assets/`. Rebuild after frontend changes; no Vite dev server is needed.
+If the build is missing or invalid, the page reports a rebuild instruction rather than silently omitting assets.
+After installation and a build, this page requires no external network resources.
+`python-tests` builds the assets before its HTTP tests and stops if that build fails; Node/npm dependencies
+are therefore required for `--only python` and `--only python-tests` too. CI prepares them in the Python test job.
 To format frontend files: `uv run --locked python scripts/node.py npm run format`.
 
 CI defines separate checks for pull requests to `main` and manual runs. Protect `main` before relying on

@@ -1,3 +1,136 @@
+@font-face {
+  font-family: Manrope;
+  src: url('./fonts/Manrope-ExtraBold.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+}
+
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
+  --canvas: #fff;
+  --text: #121215;
+  --muted: #65656c;
+  --line: #d5d5d9;
+  --accent: #d20a2e;
+  font-family: system-ui, sans-serif;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--canvas);
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --canvas: #111113;
+  --text: #fff;
+  --muted: #adadb4;
+  --line: #414146;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+main {
+  width: min(100% - 2rem, 64rem);
+  margin-inline: auto;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: 1.5rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.brand {
+  margin: 0;
+  font-family: Manrope, sans-serif;
+  font-size: 2.25rem;
+  font-weight: 800;
+  line-height: normal;
+  color: var(--text);
+}
+
+.brand::after {
+  display: block;
+  width: 29px;
+  height: 3px;
+  margin-top: 4px;
+  background: var(--accent);
+  content: '';
+}
+
+section {
+  max-width: 42rem;
+  padding-block: clamp(2rem, 8vw, 6rem);
+}
+
+.eyebrow {
+  font-family: ui-monospace, monospace;
+  font-size: 0.875rem;
+}
+
+h1 {
+  margin-block: 1rem;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  line-height: 1.15;
+  letter-spacing: -0.04em;
+}
+
+p {
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+button {
+  min-height: 3rem;
+  padding: 0.65rem 1rem;
+  border: 1px solid currentColor;
+  border-radius: 0;
+  font: inherit;
+  color: var(--text);
+  background: var(--canvas);
+  cursor: pointer;
+}
+
+button:hover,
+button[aria-pressed='true'] {
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+}
+
+button:focus-visible {
+  outline: 3px solid var(--text);
+  outline-offset: 4px;
+}
+
+button:active {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+button:disabled {
+  cursor: default;
+  opacity: 0.65;
+}
+
+.primary {
+  margin-top: 1rem;
+  border-color: var(--accent);
+  color: #fff;
+  background: var(--accent);
+}
+
+.status {
+  min-height: 3rem;
+  margin-top: 1.5rem;
+  padding-block: 1rem;
+  border-top: 1px solid var(--line);
 }
