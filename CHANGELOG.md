@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- Create the local SQLite directory automatically when applying migrations.
 - Create text flashcards with a live preview, save them locally, and reopen them from the collection.
 - Add navigation to Cards, Statistics, and Settings and themed 404 and 500 pages.
 - Remember the selected theme across pages and browser restarts.

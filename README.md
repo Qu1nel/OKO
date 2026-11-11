@@ -30,13 +30,10 @@ Place tests in the directory for the area they exercise. Use [`tests/app/`](test
 FSRS, and web application, and [`tests/tooling/`](tests/tooling/) for development commands, hooks, and releases.
 Include `__init__.py` in each test subdirectory so Django's test runner can find its `test_*.py` files.
 
-On Windows, create the local data directory once from PowerShell:
-
-```powershell
-New-Item -ItemType Directory -Force -Path (Join-Path $env:LOCALAPPDATA 'OKO')
-```
-
-On Linux, create `${XDG_DATA_HOME:-$HOME/.local/share}/oko`. For a separate collection, set `OKO_DB_PATH` to an absolute file path and create its parent directory before migrating. The app and migrations use the same path. Automated tests use an in-memory SQLite database.
+The first `migrate` creates the SQLite data directory if needed. On Windows the default file is
+`%LOCALAPPDATA%\OKO\oko.sqlite3`. On Linux it is `$XDG_DATA_HOME/oko/oko.sqlite3`, with `~/.local/share` as
+the default data home. Set `OKO_DB_PATH` to an absolute file path for a separate collection. The app and
+migrations use the same path. The Django test runner uses an in-memory database for the app's tests.
 
 Run the app from this source checkout after installing the dependencies above:
 
@@ -49,7 +46,7 @@ uv run --locked python manage.py runserver 127.0.0.1:8000
 Open `http://127.0.0.1:8000/` and follow the link to the dashboard.
 Open Cards, create a text flashcard, then open it from the collection. Statistics and Settings are placeholders.
 The light or dark theme follows the browser across pages and restarts. The cookie expires after 90 days without a visit.
-The default SQLite file is `oko.sqlite3` in the local data directory above. Keep that file outside version control.
+Keep the SQLite file outside version control.
 This uses Django's development server and development-only settings. Packaged wheel deployment is not supported yet.
 
 Vite builds local assets and `dist/.vite/manifest.json`; Django reads the entry's JS/CSS paths from it.
