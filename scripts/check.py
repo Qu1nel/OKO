@@ -10,7 +10,7 @@ CHECKS: dict[str, list[str]] = {
     "python-lint": ["-m", "ruff", "check", "."],
     "python-format": ["-m", "ruff", "format", "--check", "."],
     "python-types": ["-m", "ty", "check"],
-    "python-tests": ["-m", "unittest", "discover", "-s", "tests", "-v"],
+    "python-tests": ["manage.py", "test", "tests", "--noinput", "-v", "2"],
     "frontend-types": ["scripts/node.py", "npm", "run", "check:types"],
     "frontend-format": ["scripts/node.py", "npm", "run", "check:format"],
     "frontend-build": ["scripts/node.py", "npm", "run", "build"],

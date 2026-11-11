@@ -1,5 +1,4 @@
 import json
-import os
 import re
 import tempfile
 from html.parser import HTMLParser
@@ -9,17 +8,12 @@ from urllib.error import HTTPError
 from urllib.parse import urljoin, urlsplit
 from urllib.request import urlopen
 
-import django
+from django.conf import settings
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from django.core.exceptions import ImproperlyConfigured
+from django.test import Client, SimpleTestCase, TestCase, override_settings
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "oko.settings")
-django.setup()
-
-from django.conf import settings  # noqa: E402
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase  # noqa: E402
-from django.core.exceptions import ImproperlyConfigured  # noqa: E402
-from django.test import Client, SimpleTestCase, override_settings  # noqa: E402
-
-from oko.assets import frontend_assets  # noqa: E402
+from oko.assets import frontend_assets
 
 
 class AssetLinks(HTMLParser):
@@ -49,6 +43,9 @@ class PageTests(SimpleTestCase):
         self.assertEqual(self.client.post("/").status_code, 405)
         self.assertEqual(self.client.get("/missing/").status_code, 404)
 
+
+@override_settings(ALLOWED_HOSTS=["testserver"])
+class SectionTests(TestCase):
     def test_dashboard_renders_the_empty_state_and_reads_the_theme_cookie(self) -> None:
         for value, theme in (("dark", "dark"), ("light", "light"), ("unexpected", "light")):
             self.client.cookies["oko_theme"] = value
@@ -82,6 +79,9 @@ class PageTests(SimpleTestCase):
                 self.assertContains(response, f'href="{path}" aria-current="page"')
                 self.assertContains(response, 'aria-current="page"', count=1)
 
+
+@override_settings(ALLOWED_HOSTS=["testserver"])
+class ErrorPageTests(SimpleTestCase):
     @override_settings(DEBUG=False)
     def test_unknown_url_returns_the_themed_404_with_recovery_links(self) -> None:
         self.client.cookies["oko_theme"] = "dark"

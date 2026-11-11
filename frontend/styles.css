@@ -358,6 +358,7 @@ button:disabled {
     800 2.125rem/1.2 'Roboto Condensed',
     Inter,
     sans-serif;
+  overflow-wrap: anywhere;
 }
 
 .section-empty {
@@ -365,6 +366,116 @@ button:disabled {
   padding-block: 1.5rem;
   border-block: 1px solid var(--line);
   color: var(--muted);
+}
+
+.card-action {
+  display: inline-block;
+  padding: 0.625rem 1rem;
+  border: 1px solid var(--line);
+  text-decoration: none;
+}
+
+.card-action.primary {
+  border-color: var(--accent);
+}
+
+.dashboard-panels .card-action {
+  margin-top: 1.25rem;
+}
+
+.card-list {
+  margin-top: 1.25rem;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line);
+}
+
+.card-list li {
+  padding-block: 1rem;
+  border-bottom: 1px solid var(--line);
+  overflow-wrap: anywhere;
+}
+
+.card-list a {
+  font-weight: 600;
+}
+
+.card-list p {
+  color: var(--muted);
+}
+
+.card-back {
+  display: inline-block;
+  margin-top: 0.5rem;
+  color: var(--muted);
+}
+
+.card-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 2rem;
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line);
+}
+
+.card-fields,
+.card-preview {
+  display: grid;
+  gap: 1rem;
+}
+
+.card-editor :is(input[type='text'], textarea) {
+  display: block;
+  width: 100%;
+  padding: 0.625rem;
+  border: 1px solid var(--line);
+  color: var(--text);
+  background: var(--canvas);
+  font: inherit;
+}
+
+.card-editor textarea {
+  resize: vertical;
+}
+
+.card-editor :is(input, textarea):focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+.card-editor .helptext {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.card-editor .errorlist {
+  padding-inline-start: 1.25rem;
+  border-inline-start: 3px solid var(--accent);
+}
+
+.card-side {
+  min-height: 8rem;
+  padding: 1rem;
+  border: 1px solid var(--line);
+}
+
+.card-text {
+  margin-top: 0.75rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.card-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-block: 1rem;
+  border-top: 1px solid var(--line);
 }
 
 .error-message {
@@ -466,7 +577,8 @@ button:disabled {
 @media (max-width: 54rem) {
   .landing-hero,
   .dashboard,
-  .dashboard-panels {
+  .dashboard-panels,
+  .card-columns {
     grid-template-columns: minmax(0, 1fr);
   }
 

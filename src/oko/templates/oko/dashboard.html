@@ -3,7 +3,7 @@
 {% block section %}
   <header class="dashboard-header">
     <h1>Обзор запоминания</h1>
-    <button class="primary" type="button" disabled>Добавить карточку</button>
+    <a class="primary card-action" href="{% url 'card_create' %}">Добавить карточку</a>
   </header>
   <p class="dashboard-topics"><span>Все темы</span></p>
   <section class="dashboard-graph" aria-labelledby="graph-title">
@@ -22,7 +22,7 @@
     <section aria-labelledby="cards-title">
       <h2 id="cards-title">Карточки</h2>
       <p>Здесь будут ваши формулы, слова и термины.</p>
-      <button type="button" disabled>Создать первую карточку</button>
+      <a class="card-action" href="{% url 'card_create' %}">Создать карточку</a>
     </section>
   </div>
 {% endblock %}
